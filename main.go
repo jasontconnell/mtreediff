@@ -4,16 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/jasontconnell/mtreediff/data"
 	"github.com/jasontconnell/mtreediff/process"
 )
 
 func main() {
+	start := time.Now()
 	dirs := flag.String("d", "", "compare the directories specified")
-	subdirs := flag.String("s", "", "compare the subdirectories below specified directory specified")
+	subdirs := flag.String("s", "", "compare the subdirectories below specified directory")
 	out := flag.String("o", "", "output folder")
 	flag.Parse()
 
@@ -27,12 +30,17 @@ func main() {
 		log.Fatal("output folder (-o) required")
 	}
 
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("couldn't get current directory", err)
+	}
+
 	var folders []string
 	if *dirs != "" {
-		folders = strings.Split(*dirs, ",")
+		folders = process.GetDirs(wd, *dirs)
 	} else if *subdirs != "" {
 		var err error
-		folders, err = process.GetDirs(*subdirs)
+		folders, err = process.GetSubdirs(*subdirs)
 		if err != nil {
 			log.Fatalf("Couldn't load subdirs %v %v", *subdirs, err)
 		}
@@ -51,7 +59,6 @@ func main() {
 	}
 
 	results := process.CompareAll(allmaps)
-	fmt.Println("All maps len", len(allmaps))
 
 	for _, c := range results {
 		name := ""
@@ -86,4 +93,6 @@ func main() {
 		// 	fmt.Fprintf(outfile, "Same %v\n", f.RelPath)
 		// }
 	}
+
+	fmt.Println("Finished", time.Since(start))
 }

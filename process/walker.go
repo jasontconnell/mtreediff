@@ -60,7 +60,11 @@ func Walk(dir string) (*data.Folder, error) {
 	return folder, nil
 }
 
-func GetDirs(base string) ([]string, error) {
+func GetSubdirs(base string) ([]string, error) {
+	if !filepath.IsAbs(base) {
+		base, _ = os.Getwd()
+	}
+
 	folders, err := ioutil.ReadDir(base)
 	if err != nil {
 		return nil, err
@@ -74,4 +78,14 @@ func GetDirs(base string) ([]string, error) {
 	}
 	sort.Strings(list)
 	return list, nil
+}
+
+func GetDirs(base, str string) []string {
+	dirs := strings.Split(str, ",")
+	list := []string{}
+
+	for _, d := range dirs {
+		list = append(list, filepath.Join(base, d))
+	}
+	return list
 }
