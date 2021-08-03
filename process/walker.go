@@ -2,7 +2,6 @@ package process
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -65,7 +64,7 @@ func GetSubdirs(base string) ([]string, error) {
 		base, _ = os.Getwd()
 	}
 
-	folders, err := ioutil.ReadDir(base)
+	folders, err := os.ReadDir(base)
 	if err != nil {
 		return nil, err
 	}

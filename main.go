@@ -18,6 +18,7 @@ func main() {
 	dirs := flag.String("d", "", "compare the directories specified")
 	subdirs := flag.String("s", "", "compare the subdirectories below specified directory")
 	out := flag.String("o", "", "output folder")
+	rm := flag.Bool("rm", false, "clear output before compare?")
 	flag.Parse()
 
 	if (dirs == nil || *dirs == "") && (subdirs == nil || *subdirs == "") {
@@ -58,6 +59,14 @@ func main() {
 		allmaps = append(allmaps, r)
 	}
 
+	if *rm {
+		err := os.RemoveAll(*out)
+
+		if err != nil {
+			log.Fatalf("clearing directory before output %s. %v", *out, err)
+		}
+	}
+
 	results := process.CompareAll(allmaps)
 
 	for _, c := range results {
@@ -66,32 +75,14 @@ func main() {
 			name += f.Name + "-"
 		}
 		outpath := filepath.Join(*out, strings.TrimRight(name, "-"))
-		// outfile, err := os.OpenFile(outpath+".txt", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
-		// if err != nil {
-		// 	fmt.Println("couldn't open output file", outpath+".txt")
-		// 	continue
-		// }
-		// defer outfile.Close()
-
-		// for _, f := range c.Diff {
 		diffpath := filepath.Join(outpath, "diff")
-		//fmt.Fprintf(outfile, "Diff %v\n", f.RelPath)
 		process.Copy(diffpath, c.Diff)
-		// }
 
 		misspath := filepath.Join(outpath, "miss")
 		process.Copy(misspath, c.Miss)
 
 		samepath := filepath.Join(outpath, "same")
 		process.Copy(samepath, c.Same)
-
-		// for _, f := range c.Miss {
-		// 	fmt.Fprintf(outfile, "Missed %v\n", f.RelPath)
-		// }
-
-		// for _, f := range c.Same {
-		// 	fmt.Fprintf(outfile, "Same %v\n", f.RelPath)
-		// }
 	}
 
 	fmt.Println("Finished", time.Since(start))
