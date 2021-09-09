@@ -79,12 +79,18 @@ func GetSubdirs(base string) ([]string, error) {
 	return list, nil
 }
 
-func GetDirs(base, str string) []string {
+func GetDirs(base, str string, reverse bool) []string {
 	dirs := strings.Split(str, ",")
 	list := []string{}
 
 	for _, d := range dirs {
 		list = append(list, filepath.Join(base, d))
+	}
+
+	if reverse {
+		for i := 0; i < len(list)/2; i++ {
+			list[i], list[len(list)-1-i] = list[len(list)-1-i], list[i]
+		}
 	}
 	return list
 }

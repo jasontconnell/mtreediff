@@ -19,6 +19,7 @@ func main() {
 	subdirs := flag.String("s", "", "compare the subdirectories below specified directory")
 	out := flag.String("o", "", "output folder")
 	rm := flag.Bool("rm", false, "clear output before compare?")
+	rev := flag.Bool("reverse", false, "reverse folders (makes it easier to just add --reverse to existing call in the console)")
 	flag.Parse()
 
 	if (dirs == nil || *dirs == "") && (subdirs == nil || *subdirs == "") {
@@ -38,7 +39,7 @@ func main() {
 
 	var folders []string
 	if *dirs != "" {
-		folders = process.GetDirs(wd, *dirs)
+		folders = process.GetDirs(wd, *dirs, *rev)
 	} else if *subdirs != "" {
 		var err error
 		folders, err = process.GetSubdirs(*subdirs)
